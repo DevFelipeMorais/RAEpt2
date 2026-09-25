@@ -1,0 +1,1753 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAE - Rede de Apoio Escolar | Portal Unificado (Gestão & Espaço do Estudante)</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <!-- Barra de Perfil e Alternância de Visualização -->
+    <div class="role-selector-bar" id="roleSelectorBar">
+        <div class="container role-selector-container">
+            <div class="role-selector-label">
+                <i class="fas fa-sliders"></i>
+                <span>Visualizando como:</span>
+            </div>
+            <div class="role-selector-buttons">
+                <button type="button" class="btn-role-toggle active" id="roleBtnAdmin"
+                    onclick="alternarVisaoPerfil('admin')">
+                    <i class="fas fa-shield-halved"></i>
+                    <strong>Administrador (ADM)</strong>
+                    <small>Gestão de Escolas, Alunos, SERE & Cardápios</small>
+                </button>
+                <button type="button" class="btn-role-toggle" id="roleBtnAluno" onclick="alternarVisaoPerfil('aluno')">
+                    <i class="fas fa-graduation-cap"></i>
+                    <strong>Aluno (Lucas Silva)</strong>
+                    <small>Minha Turma, Colegas, Professores & Aulas</small>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cabeçalho Principal -->
+    <header class="header">
+        <nav class="nav container">
+            <div class="nav-logo" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" style="cursor: pointer;">
+                <i class="fas fa-graduation-cap"></i>
+                <div class="nav-logo-text">
+                    <span>RAE Estadual</span>
+                    <small>Portal Unificado da Rede</small>
+                </div>
+            </div>
+
+            <!-- Menu dinâmico por perfil -->
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="#inicio" class="nav-link">Início</a></li>
+                <!-- Menu ADM -->
+                <li class="admin-only"><a href="#escolas" class="nav-link">Escolas</a></li>
+                <li class="admin-only"><a href="#alunos" class="nav-link">Alunos</a></li>
+                <!-- Menu Aluno -->
+                <li class="aluno-only" style="display: none;"><a href="#espacoAluno" class="nav-link">Meu Espaço
+                        Escolar</a></li>
+                <li class="aluno-only" style="display: none;"><a href="#horariosLanches" class="nav-link">Aulas &
+                        Lanches</a></li>
+                <!-- Comuns -->
+                <li><a href="#cardapios" class="nav-link">Cardápio</a></li>
+                <li><a href="#biblioteca" class="nav-link">Biblioteca</a></li>
+                <li><a href="#avisos" class="nav-link">Avisos</a></li>
+                <li><a href="#contato" class="nav-link">Contato</a></li>
+            </ul>
+
+            <div class="nav-actions">
+                <button class="btn-tour-guide" onclick="abrirModalOnboarding()" type="button"
+                    title="Conheça a Plataforma RAE">
+                    <i class="fas fa-circle-question"></i>
+                    <span>Como Funciona</span>
+                </button>
+
+                <button class="btn-sere-nav admin-only" onclick="abrirModalSereImport()" type="button"
+                    title="Módulo de Integração SERE / RCO">
+                    <i class="fas fa-file-import"></i>
+                    <span>SERE / RCO</span>
+                </button>
+
+                <button class="btn-login-open" id="loginOpenBtn" type="button" style="display: none;">
+                    <i class="fas fa-user-circle"></i>
+                    <span>Entrar</span>
+                </button>
+
+                <div class="user-session" id="userSession">
+                    <button class="user-session-trigger" id="userSessionTrigger" type="button">
+                        <img id="userSessionAvatar"
+                            src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&q=80" alt="Avatar"
+                            class="user-session-avatar">
+                        <div class="user-session-info">
+                            <span id="userSessionName" class="user-session-name">Profª. Mariana Ramos</span>
+                            <span id="userSessionRole" class="user-session-role">Administrador(a)</span>
+                        </div>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="user-dropdown-menu" id="userDropdownMenu">
+                        <div class="user-dropdown-header">
+                            <img id="dropdownAvatarLarge"
+                                src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&q=80"
+                                alt="Avatar" class="user-avatar-lg">
+                            <div class="user-dropdown-info">
+                                <strong id="dropdownFullName">Profª. Mariana Ramos</strong>
+                                <span id="dropdownRoleBadge" class="badge-role role-admin"><i
+                                        class="fas fa-shield-halved"></i> Administrador</span>
+                            </div>
+                        </div>
+                        <div class="user-dropdown-actions" id="adminDropdownActions">
+                            <div class="dropdown-section-title">Ações do Administrador</div>
+                            <button type="button" class="btn-dropdown-admin" onclick="abrirModalAdminNovoAluno()">
+                                <i class="fas fa-user-plus"></i> Novo Aluno
+                            </button>
+                            <button type="button" class="btn-dropdown-admin" onclick="abrirModalAdminNovaEscola()">
+                                <i class="fas fa-school"></i> Nova Escola
+                            </button>
+                            <button type="button" class="btn-dropdown-admin" onclick="abrirModalEditarCardapio()">
+                                <i class="fas fa-utensils"></i> Editar Cardápio Nutricional
+                            </button>
+                            <button type="button" class="btn-dropdown-admin" onclick="abrirModalEscolasParaHorarios()">
+                                <i class="fas fa-clock"></i> Editar Horários de Aulas
+                            </button>
+                            <button type="button" class="btn-dropdown-admin" onclick="abrirModalSereImport()">
+                                <i class="fas fa-file-excel"></i> Importar SERE / RCO
+                            </button>
+                            <button type="button" class="btn-dropdown-admin" onclick="abrirModalAdminNovoAviso()">
+                                <i class="fas fa-plus-circle"></i> Novo Aviso
+                            </button>
+                            <button type="button" class="btn-dropdown-admin reset-btn" onclick="restaurarDadosPadrao()">
+                                <i class="fas fa-rotate-left"></i> Restaurar Dados
+                            </button>
+                        </div>
+                        <button class="btn-dropdown-logout" id="btnLogout" type="button" onclick="deslogarUsuario()">
+                            <i class="fas fa-sign-out-alt"></i> Alternar Conta
+                        </button>
+                    </div>
+                </div>
+                <button class="nav-toggle" id="navToggle" aria-label="Abrir menu" aria-expanded="false">
+                    <span class="hamburger-bar"></span>
+                    <span class="hamburger-bar"></span>
+                    <span class="hamburger-bar"></span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Overlay escuro do drawer mobile -->
+    <div class="drawer-overlay" id="drawerOverlay" onclick="fecharDrawer()"></div>
+
+    <!-- Drawer lateral mobile -->
+    <aside class="mobile-drawer" id="mobileDrawer" aria-hidden="true">
+        <!-- Cabeçalho do drawer: perfil do usuário logado -->
+        <div class="drawer-profile" id="drawerProfile">
+            <img id="drawerAvatar"
+                src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&q=80"
+                alt="Avatar" class="drawer-avatar">
+            <div class="drawer-profile-info">
+                <strong id="drawerNome">Profª. Mariana Ramos</strong>
+                <span id="drawerCargo" class="drawer-cargo">Administrador(a)</span>
+                <span id="drawerBadge" class="drawer-badge drawer-badge--admin">
+                    <i class="fas fa-shield-halved"></i> Administrador
+                </span>
+            </div>
+            <button class="drawer-close" onclick="fecharDrawer()" aria-label="Fechar menu">
+                <i class="fas fa-xmark"></i>
+            </button>
+        </div>
+
+        <!-- Links de navegação (dinâmicos por perfil) -->
+        <nav class="drawer-nav">
+            <p class="drawer-nav-section">Navegação</p>
+            <a href="#inicio"        class="drawer-link" onclick="fecharDrawer()"><i class="fas fa-house"></i> Início</a>
+            <a href="#escolas"       class="drawer-link admin-only" onclick="fecharDrawer()"><i class="fas fa-school"></i> Escolas</a>
+            <a href="#alunos"        class="drawer-link admin-only" onclick="fecharDrawer()"><i class="fas fa-users"></i> Alunos</a>
+            <a href="#espacoAluno"   class="drawer-link aluno-only" onclick="fecharDrawer()"><i class="fas fa-user-graduate"></i> Meu Espaço Escolar</a>
+            <a href="#horariosLanches" class="drawer-link aluno-only" onclick="fecharDrawer()"><i class="fas fa-calendar-days"></i> Aulas & Lanches</a>
+            <a href="#cardapios"     class="drawer-link" onclick="fecharDrawer()"><i class="fas fa-utensils"></i> Cardápio</a>
+            <a href="#biblioteca"    class="drawer-link" onclick="fecharDrawer()"><i class="fas fa-book"></i> Biblioteca</a>
+            <a href="#avisos"        class="drawer-link" onclick="fecharDrawer()"><i class="fas fa-bullhorn"></i> Avisos</a>
+            <a href="#contato"       class="drawer-link" onclick="fecharDrawer()"><i class="fas fa-envelope"></i> Contato</a>
+        </nav>
+
+        <!-- Ações do ADM (visíveis só quando admin) -->
+        <div class="drawer-actions admin-only" id="drawerAdminActions">
+            <p class="drawer-nav-section">Ações do Administrador</p>
+            <button class="drawer-action-btn" onclick="fecharDrawer(); abrirModalAdminNovoAluno()">
+                <i class="fas fa-user-plus"></i> Novo Aluno
+            </button>
+            <button class="drawer-action-btn" onclick="fecharDrawer(); abrirModalAdminNovaEscola()">
+                <i class="fas fa-school"></i> Nova Escola
+            </button>
+            <button class="drawer-action-btn" onclick="fecharDrawer(); abrirModalEditarCardapio()">
+                <i class="fas fa-utensils"></i> Editar Cardápio
+            </button>
+            <button class="drawer-action-btn" onclick="fecharDrawer(); abrirModalEscolasParaHorarios()">
+                <i class="fas fa-clock"></i> Horários de Aulas
+            </button>
+            <button class="drawer-action-btn" onclick="fecharDrawer(); abrirModalSereImport()">
+                <i class="fas fa-file-import"></i> Importar SERE / RCO
+            </button>
+            <button class="drawer-action-btn" onclick="fecharDrawer(); abrirModalAdminNovoAviso()">
+                <i class="fas fa-plus-circle"></i> Novo Aviso
+            </button>
+        </div>
+
+        <!-- Ações do Aluno (visíveis só quando aluno) -->
+        <div class="drawer-actions aluno-only" id="drawerAlunoActions">
+            <p class="drawer-nav-section">Acesso Rápido</p>
+            <button class="drawer-action-btn" onclick="fecharDrawer(); abrirModalOnboarding()">
+                <i class="fas fa-circle-question"></i> Como Funciona
+            </button>
+        </div>
+
+        <!-- Footer do drawer -->
+        <div class="drawer-footer">
+            <button class="drawer-btn-alternarconta" onclick="fecharDrawer(); deslogarUsuario()">
+                <i class="fas fa-sign-out-alt"></i> Alternar Conta
+            </button>
+        </div>
+    </aside>
+
+    <!-- Seção Hero & Proposta de Valor -->
+    <section class="hero" id="inicio">
+        <div class="container hero-content">
+            <div class="hero-text">
+                <span class="hero-badge" id="heroBadgePerfil">
+                    <i class="fas fa-shield-alt"></i>
+                    Painel Executivo da Administração Escolar
+                </span>
+                <h1 id="heroTituloPrincipal">Gestão Escolar e <span class="highlight">Apoio ao Estudante</span> em um só
+                    lugar</h1>
+                <p class="hero-subtext" id="heroSubtexto">
+                    Plataforma integrada com controle exclusivo de escolas, alunos e cardápios para a equipe gestora, e
+                    ambiente dedicado com turmas, colegas, professores e horários para os alunos.
+                </p>
+                <div class="hero-buttons">
+                    <div class="admin-only" style="display: flex; gap: 12px; flex-wrap: wrap;">
+                        <a href="#escolas" class="btn btn-primary">
+                            <i class="fas fa-school"></i> Gestão de Escolas
+                        </a>
+                        <a href="#alunos" class="btn btn-secondary">
+                            <i class="fas fa-users-gear"></i> Gestão de Alunos
+                        </a>
+                        <button type="button" class="btn btn-accent-hero" onclick="abrirModalSereImport()">
+                            <i class="fas fa-file-csv"></i> Importar SERE / RCO
+                        </button>
+                    </div>
+                    <div class="aluno-only" style="display: none; gap: 12px; flex-wrap: wrap;">
+                        <a href="#espacoAluno" class="btn btn-primary">
+                            <i class="fas fa-users"></i> Minha Turma & Colegas
+                        </a>
+                        <a href="#horariosAulas" class="btn btn-secondary">
+                            <i class="fas fa-calendar-days"></i> Horários de Aulas
+                        </a>
+                        <a href="#cardapios" class="btn btn-accent-hero">
+                            <i class="fas fa-utensils"></i> Cardápio de Lanches
+                        </a>
+                    </div>
+                </div>
+                <!-- Dashboard de Métricas -->
+                <div class="hero-stats" id="dashboardStats">
+                    <div class="stat">
+                        <strong id="statTotalEscolas">0</strong>
+                        <span>Escolas Ativas</span>
+                    </div>
+                    <div class="stat">
+                        <strong id="statTotalAlunos">0</strong>
+                        <span>Alunos Matriculados</span>
+                    </div>
+                    <div class="stat">
+                        <strong id="statTotalTurmas">0</strong>
+                        <span>Turmas Registradas</span>
+                    </div>
+                    <div class="stat">
+                        <strong id="statTaxaAprovacao">0%</strong>
+                        <span>Taxa de Aprovação</span>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-image">
+                <div class="hero-img-wrapper">
+                    <img src="https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=600&q=80"
+                        alt="Estudantes felizes da rede estadual">
+                    <div class="float-card card-1" id="floatCard1">
+                        <i class="fas fa-id-card-clip"></i>
+                        <div>
+                            <strong>E-mail @escola</strong>
+                            <span>Acesso Seguro</span>
+                        </div>
+                    </div>
+                    <div class="float-card card-2" id="floatCard2">
+                        <i class="fas fa-database"></i>
+                        <div>
+                            <strong>SERE / RCO</strong>
+                            <span>Sync Ativo</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="hero-shape"></div>
+    </section>
+
+    <!-- ========================================================================== -->
+    <!-- VISÃO DO ALUNO: MEU ESPAÇO ESCOLAR (TURMA, COLEGAS, PROFESSORES, AULAS)  -->
+    <!-- ========================================================================== -->
+    <section class="student-portal-section aluno-only" id="espacoAluno" style="display: none;">
+        <div class="container">
+            <!-- Banner de Identificação do Aluno -->
+            <div class="student-profile-hero">
+                <div class="student-profile-info">
+                    <img id="alunoHeroAvatar"
+                        src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&q=80" alt="Lucas Silva"
+                        class="student-profile-pic">
+                    <div>
+                        <div class="student-profile-badge">
+                            <i class="fas fa-user-graduate"></i> Espaço do Estudante
+                        </div>
+                        <h2 id="alunoHeroNome">Lucas Silva</h2>
+                        <p id="alunoHeroSub">
+                            <i class="fas fa-school"></i> <strong id="alunoHeroEscola">Escola Estadual Professora Helena
+                                Kolody</strong> · <span id="alunoHeroTurma">3º Ano C - Matutino</span>
+                        </p>
+                        <div class="student-profile-tags">
+                            <span class="student-tag"><i class="fas fa-id-badge"></i> <span
+                                    id="alunoHeroCgm">CGM-88219</span></span>
+                            <span class="student-tag"><i class="fas fa-envelope"></i> <span
+                                    id="alunoHeroEmail">lucas.silva@escola.pr.gov.br</span></span>
+                            <span class="student-tag"><i class="fas fa-sun"></i> Turno Manhã (07:00 - 12:30)</span>
+                            <span class="status-badge status-aprovado" id="alunoHeroStatus"><i
+                                    class="fas fa-circle-check"></i> Passou de ano (Aprovado)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grid de Módulos do Aluno -->
+            <div class="student-grid-dashboard">
+                <!-- 1. Meus Colegas de Turma -->
+                <div class="student-widget-card" id="widgetColegas">
+                    <div class="widget-header">
+                        <div class="widget-title">
+                            <i class="fas fa-user-group" style="color: var(--primary);"></i>
+                            <div>
+                                <h3>Meus Colegas de Turma</h3>
+                                <p id="widgetColegasSubtitle">Estudantes matriculados no 3º Ano C</p>
+                            </div>
+                        </div>
+                        <span class="widget-count" id="countColegas">0 colegas</span>
+                    </div>
+                    <div class="classmates-grid" id="classmatesGrid">
+                        <!-- Renderizado via JS -->
+                    </div>
+                </div>
+
+                <!-- 2. Meus Professores & Disciplinas -->
+                <div class="student-widget-card" id="widgetProfessores">
+                    <div class="widget-header">
+                        <div class="widget-title">
+                            <i class="fas fa-chalkboard-user" style="color: var(--secondary);"></i>
+                            <div>
+                                <h3>Meus Professores</h3>
+                                <p>Corpo docente e disciplinas da sua turma</p>
+                            </div>
+                        </div>
+                        <span class="widget-count" id="countProfessores">5 professores</span>
+                    </div>
+                    <div class="teachers-list" id="teachersList">
+                        <!-- Renderizado via JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Grade Horária Semanal de Aulas -->
+            <div class="student-widget-card timetable-card" id="horariosAulas" style="margin-top: 28px;">
+                <div class="widget-header">
+                    <div class="widget-title">
+                        <i class="fas fa-calendar-check" style="color: var(--accent);"></i>
+                        <div>
+                            <h3>Quadro de Horários de Aulas</h3>
+                            <p>Grade semanal completa das aulas da sua turma (Segunda a Sexta)</p>
+                        </div>
+                    </div>
+                    <div class="timetable-period-badge">
+                        <i class="fas fa-clock"></i> 07:00 às 12:30
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="timetable-table">
+                        <thead>
+                            <tr>
+                                <th>Horário</th>
+                                <th>Segunda-feira</th>
+                                <th>Terça-feira</th>
+                                <th>Quarta-feira</th>
+                                <th>Quinta-feira</th>
+                                <th>Sexta-feira</th>
+                            </tr>
+                        </thead>
+                        <tbody id="timetableBody">
+                            <!-- Renderizado via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================================================== -->
+    <!-- VISÃO DO ADMINISTRADOR: GESTÃO DE ESCOLAS (EXCLUSIVO ADM)                  -->
+    <!-- ========================================================================== -->
+    <section class="search-section admin-only" id="escolas">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-title-wrap">
+                    <div>
+                        <div class="admin-section-badge"><i class="fas fa-lock"></i> Exclusivo do Administrador</div>
+                        <h2>Gestão de <span class="highlight">Escolas Estaduais</span></h2>
+                        <p>Cadastre, edite e atualize instituições da rede (ex: Escola Helena Kolody), cursos técnicos e
+                            turmas</p>
+                    </div>
+                    <div class="section-actions-header">
+                        <button class="btn btn-secondary" onclick="filtrarEscolaHelena()"
+                            title="Exibir Escola Helena Kolody">
+                            <i class="fas fa-star" style="color: #f59e0b;"></i>
+                            Escola Helena
+                        </button>
+                        <button class="btn btn-primary" id="btnAdminAddEscola" onclick="abrirModalAdminNovaEscola()">
+                            <i class="fas fa-plus-circle"></i>
+                            Cadastrar Nova Escola
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="search-container">
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="searchInput"
+                        placeholder="Digite nome da escola (ex: Helena Kolody), bairro, curso técnico..."
+                        class="search-input">
+                    <button class="btn btn-primary search-btn">Pesquisar</button>
+                </div>
+                <div class="search-filters">
+                    <button class="filter-btn active" data-filter="todos"><i class="fas fa-layer-group"></i>
+                        Todas</button>
+                    <button class="filter-btn" data-filter="medio"><i class="fas fa-user-graduate"></i> Ensino
+                        Médio</button>
+                    <button class="filter-btn" data-filter="tecnico"><i class="fas fa-tools"></i> Ensino
+                        Técnico</button>
+                    <button class="filter-btn course-filter hidden" data-filter="ds" style="--stagger: 0.05s;"><i
+                            class="fas fa-code"></i> Desenvolvimento de Sistemas</button>
+                    <button class="filter-btn course-filter hidden" data-filter="adm" style="--stagger: 0.12s;"><i
+                            class="fas fa-briefcase"></i> Administração</button>
+                    <button class="filter-btn course-filter hidden" data-filter="enf" style="--stagger: 0.19s;"><i
+                            class="fas fa-heart-pulse"></i> Enfermagem</button>
+                </div>
+            </div>
+
+            <div class="schools-grid" id="schoolsGrid"></div>
+
+            <div class="no-results" id="noResults" style="display: none;">
+                <i class="fas fa-search-plus"></i>
+                <h3>Nenhuma escola encontrada</h3>
+                <p>Tente ajustar sua pesquisa ou utilize os filtros acima</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================================================== -->
+    <!-- VISÃO DO ADMINISTRADOR: GESTÃO DE ALUNOS & HISTÓRICO (EXCLUSIVO ADM)        -->
+    <!-- ========================================================================== -->
+    <section class="students-section admin-only" id="alunos">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-title-wrap">
+                    <div>
+                        <div class="admin-section-badge"><i class="fas fa-lock"></i> Exclusivo do Administrador</div>
+                        <h2>Gestão de <span class="highlight">Alunos & Histórico</span></h2>
+                        <p>Controle de matrículas vinculadas, histórico de aprovação e moderação de acesso institucional
+                            (@escola)</p>
+                    </div>
+                    <div class="section-actions-header">
+                        <button class="btn btn-secondary" onclick="abrirModalSereImport()">
+                            <i class="fas fa-file-import"></i>
+                            Importar SERE/RCO
+                        </button>
+                        <button class="btn btn-primary" onclick="abrirModalAdminNovoAluno()">
+                            <i class="fas fa-user-plus"></i>
+                            Novo Aluno
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Painel de Filtros dos Alunos -->
+            <div class="students-filter-panel">
+                <div class="student-search-group">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="studentSearchInput"
+                        placeholder="Buscar usuário por nome, e-mail, CGM/RA ou cargo..." class="student-search-input">
+                </div>
+                <div class="student-filter-selects">
+                    <div class="filter-control">
+                        <label for="studentSchoolFilter"><i class="fas fa-school"></i> Escola:</label>
+                        <select id="studentSchoolFilter" class="filter-select">
+                            <option value="todas">Todas as Escolas</option>
+                        </select>
+                    </div>
+                    <div class="filter-control">
+                        <label for="studentPerfilFilter"><i class="fas fa-shield-halved"></i> Perfil:</label>
+                        <select id="studentPerfilFilter" class="filter-select">
+                            <option value="todos">Todos os Perfis</option>
+                            <option value="admin_chef">👑 Administrador Chefe</option>
+                            <option value="admin">🛡️ Gestor(a) / Admin</option>
+                            <option value="aluno">🎓 Aluno(a)</option>
+                        </select>
+                    </div>
+                    <div class="filter-control">
+                        <label for="studentStatusFilter"><i class="fas fa-chart-line"></i> Rendimento:</label>
+                        <select id="studentStatusFilter" class="filter-select">
+                            <option value="todos">Todos os Status</option>
+                            <option value="aprovado">Passou de ano (Aprovado)</option>
+                            <option value="retido">Retido (Reprovado)</option>
+                            <option value="andamento">Em andamento</option>
+                            <option value="formado">Formado</option>
+                            <option value="transferido">Transferido</option>
+                        </select>
+                    </div>
+                    <div class="filter-control">
+                        <label for="studentAccessFilter"><i class="fas fa-user-shield"></i> Situação:</label>
+                        <select id="studentAccessFilter" class="filter-select">
+                            <option value="todos">Todos</option>
+                            <option value="ativo">Ativos</option>
+                            <option value="bloqueado">Bloqueados / Desativados</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabela de Alunos -->
+            <div class="students-table-card">
+                <div class="table-responsive">
+                    <table class="students-table">
+                        <thead>
+                            <tr>
+                                <th>Estudante / CGM</th>
+                                <th>E-mail Institucional (@escola)</th>
+                                <th>Cargo / Função</th>
+                                <th>Tipo / Perfil</th>
+                                <th>Escola Vinculada</th>
+                                <th>Turma / Turno</th>
+                                <th>Status Acadêmico</th>
+                                <th>Acesso</th>
+                                <th style="text-align: right;">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentsTableBody">
+                            <!-- Inserido dinamicamente via JS -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="no-results" id="studentsNoResults" style="display: none; padding: 40px 20px;">
+                    <i class="fas fa-user-slash"></i>
+                    <h3>Nenhum aluno encontrado</h3>
+                    <p>Tente alterar os filtros de busca ou cadastre novos alunos.</p>
+                </div>
+                <div class="students-table-footer">
+                    <div class="students-counter">
+                        Mostrando <strong id="studentsCountShown">0</strong> de <strong
+                            id="studentsCountTotal">0</strong> alunos cadastrados
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================================================== -->
+    <!-- CARDÁPIO NUTRICIONAL DA SEMANA & HORÁRIOS DE LANCHES (EDITÁVEL SÓ PELO ADM) -->
+    <!-- ========================================================================== -->
+    <section class="menu-overview-section" id="cardapios">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-title-wrap">
+                    <div>
+                        <h2>Cardápio Nutricional & <span class="highlight">Horários de Lanches</span></h2>
+                        <p>Acompanhamento das refeições balanceadas e horários de intervalos das escolas estaduais</p>
+                    </div>
+                    <div class="section-actions-header">
+                        <button class="btn btn-primary admin-only" id="btnAdminEditarCardapioHeader"
+                            onclick="abrirModalEditarCardapio()">
+                            <i class="fas fa-pen-to-square"></i> Editar Cardápio (Exclusivo ADM)
+                        </button>
+                        <div class="aluno-only cardapio-viewonly-badge" style="display: none;">
+                            <i class="fas fa-shield-halved"></i> Supervisionado por Nutricionistas da Rede
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seletor de Turno e Dia da Semana -->
+            <div class="menu-control-bar">
+                <div class="menu-turnos-tabs">
+                    <button class="menu-turno-btn active" data-turno="manha" onclick="selecionarTurnoCardapio('manha')">
+                        <i class="fas fa-sun"></i> Turno Manhã (07:00 - 12:30)
+                    </button>
+                    <button class="menu-turno-btn" data-turno="tarde" onclick="selecionarTurnoCardapio('tarde')">
+                        <i class="fas fa-cloud-sun"></i> Turno Tarde (13:30 - 18:00)
+                    </button>
+                    <button class="menu-turno-btn" data-turno="noite" onclick="selecionarTurnoCardapio('noite')">
+                        <i class="fas fa-moon"></i> Turno Noite (19:00 - 22:30)
+                    </button>
+                </div>
+                <div class="week-tabs" id="mainWeekTabs">
+                    <button class="week-tab active" data-day="segunda"
+                        onclick="selecionarDiaCardapio('segunda')">Segunda</button>
+                    <button class="week-tab" data-day="terca" onclick="selecionarDiaCardapio('terca')">Terça</button>
+                    <button class="week-tab" data-day="quarta" onclick="selecionarDiaCardapio('quarta')">Quarta</button>
+                    <button class="week-tab" data-day="quinta" onclick="selecionarDiaCardapio('quinta')">Quinta</button>
+                    <button class="week-tab" data-day="sexta" onclick="selecionarDiaCardapio('sexta')">Sexta</button>
+                </div>
+            </div>
+
+            <!-- Conteúdo do Cardápio -->
+            <div class="menu-content" id="mainMenuContent" style="margin-top: 24px;"></div>
+        </div>
+    </section>
+
+    <!-- ========================================================================== -->
+    <!-- SEÇÃO DE AVISOS E COMUNICADOS OFICIAIS                                     -->
+    <!-- ========================================================================== -->
+    <section class="news-section" id="avisos">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-title-wrap">
+                    <div>
+                        <h2>Avisos e <span class="highlight">Comunicados Oficiais</span></h2>
+                        <p>Notificações, calendário letivo e informativos para toda a rede estadual</p>
+                    </div>
+                    <button class="btn btn-primary btn-admin-header admin-only" id="btnAdminAddAviso"
+                        onclick="abrirModalAdminNovoAviso()">
+                        <i class="fas fa-plus-circle"></i>
+                        Publicar Novo Aviso
+                    </button>
+                </div>
+            </div>
+
+            <div class="news-grid" id="newsGrid"></div>
+        </div>
+    </section>
+
+    <!-- ========================================================================== -->
+    <!-- SEÇÃO DE BIBLIOTECA VIRTUAL                                                -->
+    <!-- ========================================================================== -->
+    <section class="library-section" id="biblioteca">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-title-wrap">
+                    <div>
+                        <h2>Biblioteca <span class="highlight">Virtual</span></h2>
+                        <p>Acesse milhares de livros, materiais didáticos e recursos de leitura a qualquer momento</p>
+                    </div>
+                    <button class="btn btn-primary btn-admin-header admin-only" id="btnAdminAddLivro"
+                        onclick="abrirModalAdminNovoLivro()">
+                        <i class="fas fa-plus-circle"></i>
+                        Adicionar Livro
+                    </button>
+                </div>
+            </div>
+
+            <div class="library-stats">
+                <div class="library-stat">
+                    <i class="fas fa-book"></i>
+                    <strong>5.000+</strong>
+                    <span>Livros disponíveis</span>
+                </div>
+                <div class="library-stat">
+                    <i class="fas fa-users"></i>
+                    <strong>50k+</strong>
+                    <span>Leitores ativos</span>
+                </div>
+                <div class="library-stat">
+                    <i class="fas fa-hourglass-half"></i>
+                    <strong>24h</strong>
+                    <span>Acesso ilimitado</span>
+                </div>
+                <div class="library-stat">
+                    <i class="fas fa-download"></i>
+                    <strong>100%</strong>
+                    <span>Gratuito</span>
+                </div>
+            </div>
+
+            <div class="library-search-box">
+                <i class="fas fa-search library-search-icon"></i>
+                <input type="text" id="librarySearchInput" placeholder="Buscar por título, autor ou categoria..."
+                    class="library-search-input">
+            </div>
+
+            <div class="library-filters" id="libraryFilters"></div>
+
+            <div class="library-grid" id="libraryGrid"></div>
+            <div class="no-results" id="libraryNoResults" style="display: none;">
+                <i class="fas fa-book-open"></i>
+                <h3>Nenhum livro encontrado</h3>
+                <p>Tente ajustar sua busca ou selecionar outra categoria</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================================================== -->
+    <!-- SEÇÃO DE CONTATO                                                           -->
+    <!-- ========================================================================== -->
+    <section class="contact-section" id="contato">
+        <div class="container">
+            <div class="contact-wrapper">
+                <div class="contact-info">
+                    <h2>Entre em <span class="highlight">Contato</span></h2>
+                    <p>Suporte oficial para alunos, professores e equipes diretivas da rede estadual.</p>
+
+                    <div class="contact-item">
+                        <div class="contact-icon"><i class="fas fa-phone"></i></div>
+                        <div>
+                            <h4>Telefone de Atendimento</h4>
+                            <p>(11) 3456-7890 / 0800 700 8080</p>
+                        </div>
+                    </div>
+
+                    <div class="contact-item">
+                        <div class="contact-icon"><i class="fas fa-envelope"></i></div>
+                        <div>
+                            <h4>E-mail Institucional</h4>
+                            <p>suporte@escola.rae.gov.br</p>
+                        </div>
+                    </div>
+
+                    <div class="contact-item">
+                        <div class="contact-icon"><i class="fas fa-map-marker-alt"></i></div>
+                        <div>
+                            <h4>Secretaria de Educação</h4>
+                            <p>Av. da Educação, 1000 - Centro Administrativo</p>
+                        </div>
+                    </div>
+
+                    <div class="social-links">
+                        <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+
+                <form class="contact-form" onsubmit="handleSubmit(event)">
+                    <h3>Envie uma mensagem ao Suporte</h3>
+                    <div class="form-group">
+                        <label for="name">Nome Completo</label>
+                        <input type="text" id="name" placeholder="Seu nome completo" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">E-mail Institucional (@escola)</label>
+                        <input type="email" id="email" placeholder="seu.nome@escola.pr.gov.br" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="assunto">Assunto</label>
+                        <select id="assunto">
+                            <option value="">Selecione um assunto</option>
+                            <option value="matricula">Matrícula / Vínculo Escolar</option>
+                            <option value="sere">Integração SERE / RCO</option>
+                            <option value="cardapio">Nutrição e Cardápio</option>
+                            <option value="acesso">Acesso e Login (@escola)</option>
+                            <option value="outro">Outro Assunto</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="mensagem">Mensagem</label>
+                        <textarea id="mensagem" rows="4" placeholder="Descreva sua solicitação com detalhes..."
+                            required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <i class="fas fa-paper-plane"></i> Enviar Mensagem
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Rodapé -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="nav-logo">
+                        <i class="fas fa-graduation-cap"></i>
+                        <span>RAE Estadual</span>
+                    </div>
+                    <p>Rede de Apoio Escolar: Tecnologia, transparência e integração a serviço da educação pública e dos
+                        estudantes.</p>
+                </div>
+                <div>
+                    <h4>Navegação Rápida</h4>
+                    <ul class="footer-links">
+                        <li><a href="#inicio">Início</a></li>
+                        <li><a href="#cardapios">Cardápios & Lanches</a></li>
+                        <li><a href="#biblioteca">Biblioteca Virtual</a></li>
+                        <li><a href="#avisos">Avisos Oficiais</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Recursos Integrados</h4>
+                    <ul class="footer-links">
+                        <li><a href="javascript:void(0)" onclick="abrirModalSereImport()">Módulo SERE / RCO</a></li>
+                        <li><a href="javascript:void(0)" onclick="abrirModalOnboarding()">Como Funciona (Tour)</a></li>
+                        <li><a href="#contato">Suporte Técnico</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Boletim Informativo</h4>
+                    <p class="footer-newsletter-text">Receba comunicados oficiais e avisos acadêmicos</p>
+                    <div class="footer-newsletter">
+                        <input type="email" placeholder="seu.email@escola.gov.br">
+                        <button type="button"
+                            onclick="mostrarToast('Inscrição confirmada no boletim escolar!', 'sucesso')"><i
+                                class="fas fa-arrow-right"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 RAE - Rede de Apoio Escolar. Todos os direitos reservados.</p>
+                <p>Ambiente Unificado: Gestão ADM & Espaço do Aluno</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ========================================================================== -->
+    <!-- MODAIS DO SISTEMA                                                          -->
+    <!-- ========================================================================== -->
+
+    <!-- Modal 1: Onboarding e Apresentação da Plataforma -->
+    <div class="modal-overlay" id="onboardingModal">
+        <div class="modal onboarding-modal-wrapper">
+            <button class="modal-close" onclick="fecharModalOnboarding()" aria-label="Fechar">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-content onboarding-content">
+                <div class="onboarding-header">
+                    <div class="onboarding-badge">
+                        <i class="fas fa-graduation-cap"></i> RAE 2.0 Unificado
+                    </div>
+                    <h2>Bem-vindo à Rede de Apoio Escolar (RAE)</h2>
+                    <p>Ambiente único adaptado para a gestão escolar e para o dia a dia do estudante.</p>
+                </div>
+                <div class="onboarding-grid">
+                    <div class="onboarding-card">
+                        <div class="onboarding-icon" style="background: rgba(79, 70, 229, 0.1); color: var(--primary);">
+                            <i class="fas fa-shield-halved"></i>
+                        </div>
+                        <h3>1. Gestão Exclusiva do Administrador</h3>
+                        <p>Controle total de escolas (ex: Escola Helena), cadastro e moderação/bloqueio de alunos,
+                            importação SERE e <strong>edição do cardápio</strong>.</p>
+                    </div>
+                    <div class="onboarding-card">
+                        <div class="onboarding-icon"
+                            style="background: rgba(16, 185, 129, 0.1); color: var(--secondary);">
+                            <i class="fas fa-user-graduate"></i>
+                        </div>
+                        <h3>2. Espaço Pessoal do Aluno</h3>
+                        <p>O estudante consulta sua turma, seus colegas de sala com fotos, seus professores, a grade
+                            horária de aulas e os lanches.</p>
+                    </div>
+                    <div class="onboarding-card">
+                        <div class="onboarding-icon" style="background: rgba(245, 158, 11, 0.1); color: var(--accent);">
+                            <i class="fas fa-utensils"></i>
+                        </div>
+                        <h3>3. Cardápios Nutricionais Protegidos</h3>
+                        <p>O aluno visualiza os horários de lanches e refeições diárias, enquanto somente o gestor
+                            autorizado pode alterar o cardápio.</p>
+                    </div>
+                    <div class="onboarding-card">
+                        <div class="onboarding-icon" style="background: rgba(239, 68, 68, 0.1); color: var(--danger);">
+                            <i class="fas fa-id-badge"></i>
+                        </div>
+                        <h3>4. Acesso Seguro @escola</h3>
+                        <p>Autenticação estrita para contas institucionais oficiais com o domínio <code>@escola</code>
+                            para toda a rede.</p>
+                    </div>
+                </div>
+                <div class="onboarding-footer">
+                    <button class="btn btn-secondary" onclick="fecharModalOnboarding()">Explorar Portal</button>
+                    <button class="btn btn-primary" onclick="fecharModalOnboarding(); alternarVisaoPerfil('aluno');">
+                        <i class="fas fa-graduation-cap"></i> Ver Espaço do Aluno
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 2: Detalhes da Escola (com Cursos, Turmas e Cardápio) -->
+    <div class="modal-overlay" id="schoolModal">
+        <div class="modal">
+            <button class="modal-close" id="modalClose" aria-label="Fechar">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-content" id="modalContent"></div>
+        </div>
+    </div>
+
+    <!-- Modal 3: Avisos e Notícias -->
+    <div class="modal-overlay news-modal" id="newsModal">
+        <div class="modal news-modal-wrapper">
+            <button class="modal-close" onclick="fecharModalAviso()" aria-label="Fechar">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-content" id="newsModalContent"></div>
+        </div>
+    </div>
+
+    <!-- Modal 4: Biblioteca Virtual -->
+    <div class="modal-overlay book-modal" id="bookModal">
+        <div class="modal book-modal-wrapper">
+            <button class="modal-close" onclick="fecharModalLivro()" aria-label="Fechar">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-content" id="bookModalContent"></div>
+        </div>
+    </div>
+
+    <!-- Modal 5: Login - Apenas E-mail e Senha (simples) -->
+    <div class="modal-overlay login-modal" id="loginModal">
+        <div class="modal login-modal-wrapper">
+            <button class="modal-close" id="loginModalClose" aria-label="Fechar">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-content login-modal-content">
+                <div class="login-modal-header" style="text-align:center;margin-bottom:28px;">
+                    <div style="width:88px;height:88px;border-radius:50%;background:linear-gradient(135deg, rgba(99,102,241,0.14), rgba(79,70,229,0.2));display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+                        <i class="fas fa-graduation-cap" style="font-size:40px;color:#6366F1;"></i>
+                    </div>
+                    <h2 style="font-size:34px;font-weight:800;background:linear-gradient(135deg,#6366F1,#4F46E5);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin:0 0 6px;">RAE</h2>
+                    <h3 style="font-size:19px;font-weight:600;color:#0F172A;margin:0 0 10px;">Rede de Apoio Escolar</h3>
+                    <p style="color:#475569;font-size:14px;line-height:1.6;margin:0 auto;max-width:420px;">
+                        Bem-vindo(a) à plataforma unificada da rede escolar. Acesso restrito para alunos, professores e administradores.
+                    </p>
+                </div>
+
+                <form class="login-form" onsubmit="tratarSubmitLogin(event)">
+                    <div class="form-group">
+                        <label for="loginEmail">E-mail institucional</label>
+                        <div class="input-icon-wrapper">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="loginEmail"
+                                placeholder="Digite seu e-mail" required autofocus autocomplete="username">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Senha</label>
+                        <div class="input-icon-wrapper">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="loginPassword"
+                                placeholder="Digite sua senha" required autocomplete="current-password">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block" style="margin-top:8px;">
+                        <i class="fas fa-sign-in-alt"></i> Entrar
+                    </button>
+                    <p style="text-align:center;color:#64748B;font-size:12.5px;margin:18px 0 0;">
+                        O acesso será liberado mediante autorização da administração.
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 6: Cadastro de Nova Escola (Exclusivo ADM) -->
+    <div class="modal-overlay admin-form-modal" id="adminEscolaModal">
+        <div class="modal admin-modal-wrapper">
+            <button class="modal-close" onclick="fecharModalAdmin('adminEscolaModal')" aria-label="Fechar">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-content admin-modal-content">
+                <div class="admin-modal-title">
+                    <i class="fas fa-school"></i>
+                    <div>
+                        <h3>Cadastrar Nova Escola Estadual</h3>
+                        <p>A escola será inserida na rede estadual com cursos e turmas configurados</p>
+                    </div>
+                </div>
+                <form id="formNovaEscola" onsubmit="tratarSubmitNovaEscola(event)">
+                    <div class="form-group">
+                        <label for="escolaNome">Nome da Instituição *</label>
+                        <input type="text" id="escolaNome" placeholder="Ex: Colégio Estadual Helena Kolody" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="escolaTipo">Nível de Ensino *</label>
+                            <select id="escolaTipo" required>
+                                <option value="medio">Ensino Médio</option>
+                                <option value="tecnico">Ensino Técnico / Integrado</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="escolaBairro">Bairro / Município *</label>
+                            <input type="text" id="escolaBairro" placeholder="Ex: Centro / Curitiba" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="escolaEndereco">Endereço Completo *</label>
+                        <input type="text" id="escolaEndereco" placeholder="Ex: Rua das Flores, 450 - Centro" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="escolaAlunos">Capacidade de Alunos</label>
+                            <input type="number" id="escolaAlunos" placeholder="Ex: 850" value="850">
+                        </div>
+                        <div class="form-group">
+                            <label for="escolaSalas">Número de Salas</label>
+                            <input type="number" id="escolaSalas" placeholder="Ex: 24" value="24">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="escolaDiretor">Diretor(a) Responsável</label>
+                            <input type="text" id="escolaDiretor" placeholder="Ex: Profª. Helena Martins"
+                                value="Profª. Helena Martins">
+                        </div>
+                        <div class="form-group">
+                            <label for="escolaTelefone">Telefone / Secretaria</label>
+                            <input type="text" id="escolaTelefone" placeholder="(11) 3456-7788" value="(11) 3456-7788">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Turmas Iniciais</label>
+                        <div class="turmas-chips-box" id="novaTurmasChipsBox">
+                            <!-- chips renderizados via JS -->
+                        </div>
+                        <div class="turmas-add-row">
+                            <input type="text" id="novaNovaTurmaInput" class="turmas-add-input"
+                                placeholder="Ex: 1º Ano A, 2º Ano B..." maxlength="60"
+                                onkeydown="if(event.key==='Enter'){event.preventDefault();adicionarTurmaModal('nova');}">
+                            <button type="button" class="btn-turma-add" onclick="adicionarTurmaModal('nova')">
+                                <i class="fas fa-plus"></i> Adicionar
+                            </button>
+                        </div>
+                        <input type="hidden" id="escolaTurmasIniciais">
+                    </div>
+                    <div class="form-group">
+                        <label for="escolaImagem">URL da Imagem da Fachada</label>
+                        <input type="url" id="escolaImagem"
+                            value="https://images.unsplash.com/photo-1541829070764-84a7d30dd3f3?w=800&q=80">
+                    </div>
+                    <div class="admin-form-actions">
+                        <button type="button" class="btn btn-secondary"
+                            onclick="fecharModalAdmin('adminEscolaModal')">Cancelar</button>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-check"></i> Salvar
+                            Escola</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 7: Edição de Escola (Exclusivo ADM) -->
+    <div class="modal-overlay admin-form-modal" id="adminEditarEscolaModal">
+        <div class="modal admin-modal-wrapper">
+            <button class="modal-close" onclick="fecharModalAdmin('adminEditarEscolaModal')" aria-label="Fechar">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-content admin-modal-content">
+                <div class="admin-modal-title">
+                    <i class="fas fa-pen-to-square"></i>
+                    <div>
+                        <h3>Editar Informações da Escola</h3>
+                        <p>Atualize os dados institucionais, turnos e turmas ativas desta unidade</p>
+                    </div>
+                </div>
+                <form id="formEditarEscola" onsubmit="tratarSubmitEditarEscola(event)">
+                    <input type="hidden" id="editEscolaId">
+                    <div class="form-group">
+                        <label for="editEscolaNome">Nome da Instituição *</label>
+                        <input type="text" id="editEscolaNome" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editEscolaTipo">Nível de Ensino *</label>
+                            <select id="editEscolaTipo" required>
+                                <option value="medio">Ensino Médio</option>
+                                <option value="tecnico">Ensino Técnico / Integrado</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="editEscolaBairro">Bairro / Município *</label>
+                            <input type="text" id="editEscolaBairro" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="editEscolaEndereco">Endereço Completo *</label>
+                        <input type="text" id="editEscolaEndereco" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editEscolaAlunos">Total de Alunos Matriculados</label>
+                            <input type="number" id="editEscolaAlunos" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editEscolaSalas">Salas de Aula</label>
+                            <input type="number" id="editEscolaSalas" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editEscolaDiretor">Diretor(a)</label>
+                            <input type="text" id="editEscolaDiretor" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editEscolaTelefone">Telefone da Secretaria</label>
+                            <input type="text" id="editEscolaTelefone" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="editEscolaEmail">E-mail Institucional</label>
+                        <input type="email" id="editEscolaEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Turmas Cadastradas</label>
+                        <div class="turmas-chips-box" id="editTurmasChipsBox">
+                            <!-- chips renderizados via JS -->
+                        </div>
+                        <div class="turmas-add-row">
+                            <input type="text" id="editNovaTurmaInput" class="turmas-add-input"
+                                placeholder="Ex: 1º Ano A - Manhã" maxlength="60"
+                                onkeydown="if(event.key==='Enter'){event.preventDefault();adicionarTurmaModal('edit');}">
+                            <button type="button" class="btn-turma-add" onclick="adicionarTurmaModal('edit')">
+                                <i class="fas fa-plus"></i> Adicionar
+                            </button>
+                        </div>
+                        <input type="hidden" id="editEscolaTurmas">
+                    </div>
+                    <div class="form-group">
+                        <label for="editEscolaImagem">URL da Imagem</label>
+                        <input type="url" id="editEscolaImagem">
+                    </div>
+                    <div class="admin-form-actions">
+                        <button type="button" class="btn btn-secondary"
+                            onclick="fecharModalAdmin('adminEditarEscolaModal')">Cancelar</button>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Salvar
+                            Alterações</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 8: Cadastro e Edição de Aluno (Exclusivo ADM) -->
+    <div class="modal-overlay admin-form-modal" id="adminAlunoModal">
+        <div class="modal admin-modal-wrapper">
+            <button class="modal-close" onclick="fecharModalAdmin('adminAlunoModal')" aria-label="Fechar">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-content admin-modal-content">
+                <div class="admin-modal-title">
+                    <i class="fas fa-user-graduate"></i>
+                    <div>
+                        <h3 id="alunoModalTitle">Gerenciar Dados do Aluno</h3>
+                        <p>Edite as informações cadastrais, escola vinculada, rendimento acadêmico e status de acesso
+                        </p>
+                    </div>
+                </div>
+                <form id="formAluno" onsubmit="tratarSubmitAluno(event)">
+                    <input type="hidden" id="alunoId">
+                    <div class="form-group">
+                        <label for="alunoNome">Nome Completo do Aluno *</label>
+                        <input type="text" id="alunoNome" placeholder="Ex: Maria Clara Souza" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="alunoEmail">E-mail Institucional (@escola) *</label>
+                            <input type="email" id="alunoEmail" placeholder="aluno@escola.pr.gov.br" required
+                                oninput="validarFeedbackEmailInput(this)">
+                            <small class="field-feedback" id="alunoEmailFeedback"></small>
+                        </div>
+                        <div class="form-group">
+                            <label for="alunoCgm">CGM / Matrícula SERE *</label>
+                            <input type="text" id="alunoCgm" placeholder="Ex: CGM-99201" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="alunoEscola">Escola Vinculada (Obrigatória) *</label>
+                            <select id="alunoEscola" required onchange="atualizarSelectTurmasAluno(this.value)">
+                                <option value="">Selecione a Escola...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="alunoTurma">Turma Vinculada *</label>
+                            <select id="alunoTurma" required>
+                                <option value="">Selecione uma escola primeiro</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="alunoStatusAcademico">Histórico / Status de Aprovação *</label>
+                            <select id="alunoStatusAcademico" required>
+                                <option value="aprovado">🟢 Passou de ano (Aprovado)</option>
+                                <option value="retido">🔴 Retido (Reprovado)</option>
+                                <option value="andamento">🟡 Em andamento</option>
+                                <option value="formado">🔵 Formado</option>
+                                <option value="transferido">⚪ Transferido</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="alunoSituacaoAcesso">Situação de Acesso ao Sistema *</label>
+                            <select id="alunoSituacaoAcesso" required>
+                                <option value="ativo">✅ Ativo (Acesso Liberado)</option>
+                                <option value="bloqueado">⛔ Bloqueado / Desativado</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="alunoTipoPerfil">
+                                <i class="fas fa-shield-halved"></i> Tipo de Perfil / Função no Sistema *
+                            </label>
+                            <select id="alunoTipoPerfil" required onchange="atualizarCampoCargoPorPerfil(this.value)">
+                                <option value="aluno">🎓 Aluno(a) — Acesso ao Espaço do Estudante</option>
+                                <option value="admin">🛡️ Gestor(a) Escolar — Coordenação & SERE</option>
+                                <option value="admin_chef">👑 Administrador(a) Chefe — Acesso Total</option>
+                            </select>
+                            <small class="field-feedback" id="alunoTipoPerfilFeedback" style="color:var(--accent);font-weight:600;"></small>
+                        </div>
+                        <div class="form-group">
+                            <label for="alunoCargo">
+                                <i class="fas fa-briefcase"></i> Cargo / Função Desempenhada *
+                            </label>
+                            <input type="text" id="alunoCargo" placeholder="Ex: Aluno 3º Ano, Coordenador(a) Pedagógico(a), Diretor(a), etc." required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="alunoSenhaAcesso">
+                            <i class="fas fa-key"></i> Senha de Acesso ao Sistema
+                            <small style="color:#888; font-weight:400;">(deixe em branco para usar senha padrão: 123)</small>
+                        </label>
+                        <input type="text" id="alunoSenhaAcesso" placeholder="Senha para login (mínimo 3 caracteres)">
+                    </div>
+                    <div class="form-group">
+                        <label for="alunoObservacoes">Observações Pedagógicas / Histórico</label>
+                        <textarea id="alunoObservacoes" rows="2"
+                            placeholder="Notas sobre desempenho, frequência ou moderação..."></textarea>
+                    </div>
+                    <div class="admin-form-actions">
+                        <button type="button" class="btn btn-secondary"
+                            onclick="fecharModalAdmin('adminAlunoModal')">Cancelar</button>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-check"></i> Salvar Aluno</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 9: Módulo de Importação SERE / RCO (Exclusivo ADM) -->
+    <div class="modal-overlay sere-modal" id="sereImportModal">
+        <div class="modal sere-modal-wrapper">
+            <button class="modal-close" onclick="fecharModalSereImport()" aria-label="Fechar">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-content sere-modal-content">
+                <div class="sere-modal-header">
+                    <div class="sere-badge"><i class="fas fa-database"></i> Módulo SERE / RCO (Exclusivo ADM)</div>
+                    <h2>Importação de Dados da Secretaria de Educação</h2>
+                    <p>Importe turmas e listas de alunos em lote via arquivos CSV, planilhas ou colagem direta de dados.
+                    </p>
+                </div>
+
+                <div class="sere-instructions-card">
+                    <div class="sere-inst-step">
+                        <span class="step-num">1</span>
+                        <div>
+                            <strong>Selecione a Escola de Destino</strong>
+                            <p>Todos os estudantes e turmas importados serão vinculados à escola escolhida.</p>
+                        </div>
+                    </div>
+                    <div class="sere-inst-step">
+                        <span class="step-num">2</span>
+                        <div>
+                            <strong>Formato das Colunas</strong>
+                            <p>Cabeçalho: <code>Turma, Nome_Aluno, Email_Institucional, Status_Academico</code></p>
+                        </div>
+                    </div>
+                    <div class="sere-inst-step">
+                        <span class="step-num">3</span>
+                        <div>
+                            <strong>Domínio Obrigatório</strong>
+                            <p>E-mails devem conter a terminação oficial <code>@escola</code> para validação.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sere-form-section">
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 2;">
+                            <label for="sereEscolaSelect"><strong>Escola de Destino da Importação *</strong></label>
+                            <select id="sereEscolaSelect" class="filter-select" style="padding: 12px;">
+                                <option value="">Selecione a escola receptora dos dados...</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="flex: 1; align-self: flex-end;">
+                            <button type="button" class="btn btn-secondary btn-block"
+                                onclick="baixarPlanilhaModeloSERE()">
+                                <i class="fas fa-file-arrow-down"></i> Baixar Modelo CSV
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="sere-upload-tabs">
+                        <button type="button" class="sere-tab-btn active" id="sereTabFile"
+                            onclick="alternarAbaSere('file')">
+                            <i class="fas fa-file-csv"></i> Enviar Arquivo (CSV / TXT)
+                        </button>
+                        <button type="button" class="sere-tab-btn" id="sereTabText" onclick="alternarAbaSere('text')">
+                            <i class="fas fa-paste"></i> Colar Dados do SERE / RCO
+                        </button>
+                        <button type="button" class="sere-tab-btn" onclick="carregarExemploProntoSERE()">
+                            <i class="fas fa-wand-magic-sparkles"></i> Carregar Exemplo Pronto
+                        </button>
+                    </div>
+
+                    <div id="serePanelFile" class="sere-panel">
+                        <div class="dropzone" id="sereDropzone"
+                            onclick="document.getElementById('sereFileInput').click()">
+                            <i class="fas fa-cloud-arrow-up dropzone-icon"></i>
+                            <h4>Arraste o arquivo CSV/Excel do SERE ou clique para selecionar</h4>
+                            <p>Formatos suportados: .csv, .txt (separados por vírgula ou ponto-e-vírgula)</p>
+                            <input type="file" id="sereFileInput" accept=".csv,.txt" style="display: none;"
+                                onchange="tratarUploadArquivoSere(event)">
+                        </div>
+                    </div>
+
+                    <div id="serePanelText" class="sere-panel" style="display: none;">
+                        <div class="form-group">
+                            <label for="sereTextData"><strong>Cole a listagem de alunos (linhas com Turma, Nome, E-mail,
+                                    Status):</strong></label>
+                            <textarea id="sereTextData" rows="6"
+                                placeholder="3º Ano DS, Lucas Gabriel, lucas.gabriel@escola.pr.gov.br, Passou de ano&#10;3º Ano DS, Amanda Costa, amanda.costa@escola.pr.gov.br, Passou de ano"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="sere-action-bar">
+                        <button type="button" class="btn btn-secondary" onclick="processarPrevisualizacaoSere()">
+                            <i class="fas fa-magnifying-glass-chart"></i> Pré-visualizar e Validar Dados
+                        </button>
+                    </div>
+
+                    <div id="serePreviewArea" style="display: none; margin-top: 24px;">
+                        <div class="sere-preview-header">
+                            <div>
+                                <h4><i class="fas fa-list-check"></i> Pré-visualização do Mapeamento SERE / RCO</h4>
+                                <p id="serePreviewSummary">0 registros identificados</p>
+                            </div>
+                            <button type="button" class="btn btn-primary" id="btnConfirmarImportSere"
+                                onclick="executarImportacaoLoteSere()">
+                                <i class="fas fa-circle-check"></i> Confirmar Cadastro em Lote
+                            </button>
+                        </div>
+                        <div class="table-responsive" style="max-height: 280px; overflow-y: auto;">
+                            <table class="students-table sere-preview-table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Turma Mapeada</th>
+                                        <th>Nome do Aluno</th>
+                                        <th>E-mail Institucional (@escola)</th>
+                                        <th>Status Acadêmico</th>
+                                        <th>Validação</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="serePreviewTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 10: Edição de Cardápio Nutricional (Exclusivo ADM) -->
+    <div class="modal-overlay admin-form-modal" id="adminEditarCardapioModal">
+        <div class="modal admin-modal-wrapper" style="max-width: 760px;">
+            <button class="modal-close" onclick="fecharModalAdmin('adminEditarCardapioModal')" aria-label="Fechar">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-content admin-modal-content">
+                <div class="admin-modal-title">
+                    <i class="fas fa-utensils"></i>
+                    <div>
+                        <h3>Editar Cardápio Nutricional Escolar</h3>
+                        <p>Exclusivo para a Coordenação de Nutrição & Gestão ADM</p>
+                    </div>
+                </div>
+                <form id="formEditarCardapio" onsubmit="tratarSubmitEditarCardapio(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="cardapioEditDia">Dia da Semana *</label>
+                            <select id="cardapioEditDia" required onchange="carregarRefeicoesParaEdicao()">
+                                <option value="segunda">Segunda-feira</option>
+                                <option value="terca">Terça-feira</option>
+                                <option value="quarta">Quarta-feira</option>
+                                <option value="quinta">Quinta-feira</option>
+                                <option value="sexta">Sexta-feira</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="cardapioEditTurno">Turno Escolar *</label>
+                            <select id="cardapioEditTurno" required onchange="carregarRefeicoesParaEdicao()">
+                                <option value="manha">Manhã (07:00 - 12:30)</option>
+                                <option value="tarde">Tarde (13:30 - 18:00)</option>
+                                <option value="noite">Noite (19:00 - 22:30)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="cardapioEditRefeicoesContainer">
+                        <!-- Campos dinâmicos de refeições gerados via JS -->
+                    </div>
+
+                    <div class="admin-form-actions">
+                        <button type="button" class="btn btn-secondary"
+                            onclick="fecharModalAdmin('adminEditarCardapioModal')">Cancelar</button>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-check"></i> Salvar
+                            Cardápio</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 11: Publicar Novo Aviso -->
+    <div class="modal-overlay admin-form-modal" id="adminAvisoModal">
+        <div class="modal admin-modal-wrapper">
+            <button class="modal-close" onclick="fecharModalAdmin('adminAvisoModal')" aria-label="Fechar">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-content admin-modal-content">
+                <div class="admin-modal-title">
+                    <i class="fas fa-bullhorn"></i>
+                    <div>
+                        <h3>Publicar Novo Comunicado Oficial</h3>
+                        <p>O aviso será transmitido a toda a comunidade escolar</p>
+                    </div>
+                </div>
+                <form id="formNovoAviso" onsubmit="tratarSubmitNovoAviso(event)">
+                    <div class="form-group">
+                        <label for="avisoTitulo">Título do Comunicado *</label>
+                        <input type="text" id="avisoTitulo" placeholder="Ex: Abertura das Inscrições para Olimpíadas"
+                            required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="avisoCategoria">Categoria / Badge *</label>
+                            <select id="avisoCategoria" required>
+                                <option value="geral">Geral (Aviso)</option>
+                                <option value="urgente">Urgente (Alerta)</option>
+                                <option value="evento">Evento (Calendário)</option>
+                                <option value="sucesso">Esporte / Conquista</option>
+                                <option value="info">Educação / Informação</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="avisoData">Data de Publicação</label>
+                            <input type="text" id="avisoData" placeholder="Ex: 17 de Agosto, 2026">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="avisoResumo">Resumo Breve *</label>
+                        <textarea id="avisoResumo" rows="2" placeholder="Resumo curto..." required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="avisoConteudo">Texto Completo *</label>
+                        <textarea id="avisoConteudo" rows="4" placeholder="Escreva o comunicado completo..."
+                            required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="avisoImagem">URL da Imagem</label>
+                        <input type="url" id="avisoImagem"
+                            value="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=1200&q=80">
+                    </div>
+                    <div class="admin-form-actions">
+                        <button type="button" class="btn btn-secondary"
+                            onclick="fecharModalAdmin('adminAvisoModal')">Cancelar</button>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-check"></i> Publicar
+                            Aviso</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 12: Adicionar Novo Livro -->
+    <div class="modal-overlay admin-form-modal" id="adminLivroModal">
+        <div class="modal admin-modal-wrapper">
+            <button class="modal-close" onclick="fecharModalAdmin('adminLivroModal')" aria-label="Fechar">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-content admin-modal-content">
+                <div class="admin-modal-title">
+                    <i class="fas fa-book"></i>
+                    <div>
+                        <h3>Adicionar Novo Livro à Biblioteca</h3>
+                        <p>O livro estará disponível para leitura e download pelos estudantes</p>
+                    </div>
+                </div>
+                <form id="formNovoLivro" onsubmit="tratarSubmitNovoLivro(event)">
+                    <div class="form-group">
+                        <label for="livroTitulo">Título da Obra *</label>
+                        <input type="text" id="livroTitulo" placeholder="Ex: Dom Casmurro" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="livroAutor">Autor(a) *</label>
+                            <input type="text" id="livroAutor" placeholder="Ex: Machado de Assis" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="livroCategoria">Categoria *</label>
+                            <select id="livroCategoria" required>
+                                <option value="literatura">Literatura Brasileira</option>
+                                <option value="ficcao">Ficção / Clássico</option>
+                                <option value="infantil">Infantil / Juvenil</option>
+                                <option value="didatico">Material Didático</option>
+                                <option value="tecnico">Técnico / Tecnologia</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="livroAno">Ano</label>
+                            <input type="number" id="livroAno" placeholder="Ex: 2024" value="2024">
+                        </div>
+                        <div class="form-group">
+                            <label for="livroPaginas">Páginas</label>
+                            <input type="number" id="livroPaginas" placeholder="Ex: 220" value="220">
+                        </div>
+                        <div class="form-group">
+                            <label for="livroAvaliacao">Avaliação (1-5)</label>
+                            <input type="number" step="0.1" id="livroAvaliacao" min="1" max="5" value="4.8">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="livroResumo">Sinopse / Descrição *</label>
+                        <textarea id="livroResumo" rows="3" placeholder="Resumo da obra..." required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="livroCapa">URL da Imagem da Capa</label>
+                        <input type="url" id="livroCapa"
+                            value="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=600&q=80">
+                    </div>
+                    <div class="admin-form-actions">
+                        <button type="button" class="btn btn-secondary"
+                            onclick="fecharModalAdmin('adminLivroModal')">Cancelar</button>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-check"></i> Adicionar
+                            Livro</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 13: Editar Horários de Aulas por Escola (Exclusivo ADM) -->
+    <div class="modal-overlay admin-form-modal" id="adminHorariosAulasModal">
+        <div class="modal admin-modal-wrapper horarios-modal-wrapper">
+            <button class="modal-close" onclick="fecharModalAdmin('adminHorariosAulasModal')" aria-label="Fechar">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-content admin-modal-content">
+                <div class="admin-modal-title">
+                    <i class="fas fa-calendar-week" style="color: var(--accent);"></i>
+                    <div>
+                        <h3>Editar Grade Horária de Aulas</h3>
+                        <p id="horariosModalEscolaNome" style="font-weight:600; color: var(--primary); margin-top:2px;">Escola</p>
+                    </div>
+                </div>
+
+                <!-- Legenda -->
+                <div class="horarios-legenda">
+                    <span><i class="fas fa-clock" style="color:var(--primary);"></i> Cada linha representa um período de aula</span>
+                    <span><i class="fas fa-bell" style="color:var(--accent);"></i> Linha de intervalo exibe um aviso na grade</span>
+                    <span><i class="fas fa-trash-can" style="color:var(--danger);"></i> Remova linhas desnecessárias</span>
+                </div>
+
+                <!-- Cabeçalho da tabela de edição -->
+                <div class="horarios-table-header">
+                    <span class="horarios-col-time">Horário</span>
+                    <span class="horarios-col-seg">Segunda</span>
+                    <span class="horarios-col-ter">Terça</span>
+                    <span class="horarios-col-qua">Quarta</span>
+                    <span class="horarios-col-qui">Quinta</span>
+                    <span class="horarios-col-sex">Sexta</span>
+                    <span class="horarios-col-del"></span>
+                </div>
+
+                <!-- Linhas dinâmicas geradas via JS -->
+                <div id="horariosLinhasContainer" class="horarios-linhas-container"></div>
+
+                <!-- Botões de adição de linha -->
+                <div class="horarios-add-buttons">
+                    <button type="button" class="btn btn-secondary" onclick="adicionarLinhaAula()">
+                        <i class="fas fa-plus"></i> Adicionar Aula
+                    </button>
+                    <button type="button" class="btn btn-outline-accent" onclick="adicionarLinhaIntervalo()">
+                        <i class="fas fa-bell"></i> Adicionar Intervalo
+                    </button>
+                    <button type="button" class="btn btn-ghost-danger" onclick="restaurarGradePadrao()">
+                        <i class="fas fa-rotate-left"></i> Restaurar Padrão
+                    </button>
+                </div>
+
+                <!-- Ações finais -->
+                <div class="admin-form-actions">
+                    <button type="button" class="btn btn-secondary"
+                        onclick="fecharModalAdmin('adminHorariosAulasModal')">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="salvarGradeHoraria()">
+                        <i class="fas fa-check"></i> Salvar Grade Horária
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 14: Selecionar escola para editar horários (Exclusivo ADM) -->
+    <div class="modal-overlay admin-form-modal" id="adminSelecionarEscolaHorariosModal">
+        <div class="modal admin-modal-wrapper" style="max-width:520px;">
+            <button class="modal-close" onclick="fecharModalAdmin('adminSelecionarEscolaHorariosModal')" aria-label="Fechar">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-content admin-modal-content">
+                <div class="admin-modal-title">
+                    <i class="fas fa-school" style="color:var(--primary);"></i>
+                    <div>
+                        <h3>Selecionar Escola</h3>
+                        <p>Escolha a escola para editar os horários de aulas</p>
+                    </div>
+                </div>
+                <div id="escolaHorariosLista" class="escola-horarios-lista"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 15: Gerenciar Turmas de uma Escola (Exclusivo ADM) -->
+    <div class="modal-overlay admin-form-modal" id="adminGerenciarTurmasModal">
+        <div class="modal admin-modal-wrapper turmas-modal-wrapper">
+            <button class="modal-close" onclick="fecharModalAdmin('adminGerenciarTurmasModal')" aria-label="Fechar">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-content admin-modal-content">
+                <div class="admin-modal-title">
+                    <i class="fas fa-chalkboard-user" style="color: var(--primary);"></i>
+                    <div>
+                        <h3>Gerenciar Turmas</h3>
+                        <p id="gerenciarTurmasEscolaNome" style="font-weight:600; color:var(--primary); margin-top:2px;"></p>
+                    </div>
+                </div>
+
+                <!-- Contador -->
+                <div class="turmas-summary-bar">
+                    <span id="gerenciarTurmasCount" class="turmas-count-badge">0 turmas</span>
+                    <span class="turmas-summary-hint"><i class="fas fa-info-circle"></i> Clique no <i class="fas fa-xmark"></i> para remover uma turma</span>
+                </div>
+
+                <!-- Área de chips -->
+                <div class="turmas-chips-box turmas-chips-box--lg" id="gerenciarTurmasChipsBox">
+                    <!-- chips renderizados via JS -->
+                </div>
+
+                <!-- Formulário de adição com sugestões -->
+                <div class="turmas-form-section">
+                    <h4 class="turmas-section-title"><i class="fas fa-plus-circle"></i> Adicionar Nova Turma</h4>
+
+                    <div class="turmas-sugestoes-wrap">
+                        <span class="turmas-sugestoes-label">Sugestões rápidas:</span>
+                        <div class="turmas-sugestoes" id="turmasSugestoes">
+                            <button type="button" class="turma-sugestao-pill" onclick="usarSugestaoTurma('1º Ano A - Manhã')">1º Ano A - Manhã</button>
+                            <button type="button" class="turma-sugestao-pill" onclick="usarSugestaoTurma('1º Ano B - Manhã')">1º Ano B - Manhã</button>
+                            <button type="button" class="turma-sugestao-pill" onclick="usarSugestaoTurma('2º Ano A - Tarde')">2º Ano A - Tarde</button>
+                            <button type="button" class="turma-sugestao-pill" onclick="usarSugestaoTurma('2º Ano B - Tarde')">2º Ano B - Tarde</button>
+                            <button type="button" class="turma-sugestao-pill" onclick="usarSugestaoTurma('3º Ano A - Manhã')">3º Ano A - Manhã</button>
+                            <button type="button" class="turma-sugestao-pill" onclick="usarSugestaoTurma('3º Ano A - Noite')">3º Ano A - Noite</button>
+                            <button type="button" class="turma-sugestao-pill" onclick="usarSugestaoTurma('1º DS - Manhã')">1º DS - Manhã</button>
+                            <button type="button" class="turma-sugestao-pill" onclick="usarSugestaoTurma('2º DS - Tarde')">2º DS - Tarde</button>
+                            <button type="button" class="turma-sugestao-pill" onclick="usarSugestaoTurma('1º ADM - Noite')">1º ADM - Noite</button>
+                            <button type="button" class="turma-sugestao-pill" onclick="usarSugestaoTurma('1º ENF - Manhã')">1º ENF - Manhã</button>
+                        </div>
+                    </div>
+
+                    <div class="turmas-input-composto">
+                        <div class="turmas-input-group">
+                            <select id="gerenciarTurmaAno" class="turmas-select">
+                                <option value="">Ano/Série</option>
+                                <option value="1º Ano">1º Ano</option>
+                                <option value="2º Ano">2º Ano</option>
+                                <option value="3º Ano">3º Ano</option>
+                                <option value="1º DS">1º DS</option>
+                                <option value="2º DS">2º DS</option>
+                                <option value="3º DS">3º DS</option>
+                                <option value="1º ADM">1º ADM</option>
+                                <option value="2º ADM">2º ADM</option>
+                                <option value="1º ENF">1º ENF</option>
+                                <option value="2º ENF">2º ENF</option>
+                                <option value="3º ENF">3º ENF</option>
+                            </select>
+                            <select id="gerenciarTurmaTurma" class="turmas-select">
+                                <option value="">Turma</option>
+                                <option value="A">Turma A</option>
+                                <option value="B">Turma B</option>
+                                <option value="C">Turma C</option>
+                                <option value="D">Turma D</option>
+                            </select>
+                            <select id="gerenciarTurmaTurno" class="turmas-select">
+                                <option value="">Turno</option>
+                                <option value="Manhã">Manhã</option>
+                                <option value="Tarde">Tarde</option>
+                                <option value="Noite">Noite</option>
+                                <option value="Integral">Integral</option>
+                            </select>
+                            <button type="button" class="btn btn-primary" onclick="adicionarTurmaCompostoModal()">
+                                <i class="fas fa-plus"></i> Adicionar
+                            </button>
+                        </div>
+                        <div class="turmas-ou-divider"><span>ou</span></div>
+                        <div class="turmas-add-row">
+                            <input type="text" id="gerenciarTurmaInput" class="turmas-add-input"
+                                placeholder="Digite o nome da turma livremente..."
+                                maxlength="80"
+                                onkeydown="if(event.key==='Enter'){event.preventDefault();adicionarTurmaGerenciar();}">
+                            <button type="button" class="btn-turma-add" onclick="adicionarTurmaGerenciar()">
+                                <i class="fas fa-plus"></i> Adicionar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="admin-form-actions">
+                    <button type="button" class="btn btn-secondary"
+                        onclick="fecharModalAdmin('adminGerenciarTurmasModal')">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="salvarTurmasGerenciar()">
+                        <i class="fas fa-check"></i> Salvar Turmas
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Container de Notificações Toast -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
